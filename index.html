@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Example</title>
+<link rel="stylesheet" type="text/css" href="jquery.formhighlighter.css">
+</head>
+<body>
+<div id="myForm" data-form_id="myForm">
+	<div class="formRow">
+		<div class="formCol_left">Example 1:</div>
+		<div class="formCol_right">
+			<input type="checkbox" name="example1" id="example1" data-multiple="yes">
+			<div class="hiddenElem">
+				<table>
+					<tbody>
+						<tr>
+							<td>Example:</td>
+							<td><input type="text" name="example1a" id="example1a"></td>
+						</tr>
+						<tr>
+							<td>Example:</td>
+							<td><input type="checkbox" name="example1b" id="example1b"></td>
+						</tr>
+						<tr>
+							<td>&nbsp;</td>
+							<td class="rgt"><button class="button small orange" id="example1_save">Save</button></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<div class="formRow">
+		<div class="formCol_left">Example 2:</div>
+		<div class="formCol_right">
+			<input type="checkbox" name="example2" id="example2" data-multiple="yes">
+			<div class="hiddenElem">
+				<table>
+					<tbody>
+						<tr>
+							<td>Example:</td>
+							<td>
+								<input type="text" name="example2a" id="example2a">
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<div class="formRow">
+		<div class="formCol_left">Example 3:</div>
+		<div class="formCol_right">
+			<input type="checkbox" name="example3a" id="example3a">
+		</div>
+		<div class="formCol_left">Example:</div>
+		<div class="formCol_right">
+			<input type="checkbox" name="example3b" id="example3b">
+		</div>
+		<div class="formCol_left">Example:</div>
+		<div class="formCol_right">
+			<input type="checkbox" name="example3c" id="example3c">
+		</div>
+		<div class="formCol_left">Example:</div>
+		<div class="formCol_right">
+			<input type="checkbox" name="example3d" id="example3d">
+		</div>
+	</div>
+	<div class="formRow cen">
+		<button class="button gray small" id="mysave" name="mysave">Save Changes</button> <button class="button gray small" id="myundo" name="myundo">Undo Changes</button>
+		<div class="clr_both"></div>
+	</div>
+</div>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+<script type="text/javascript" src="jquery.formhighlighter.js"></script>
+<script type="text/javascript">
+var myFormObj = '';//intentionally left out of ready function so it can be used in a global scope.
+$('#myForm').click(function()
+{
+	undoChanges('#myForm', myFormObj, '#mysave, #myundo');
+});
+$('#example1, #example1a, #example1b, #example2, #example2a, #example3a, #example3b, #example3c, #example3d').change(function(e)
+{
+	//e.stopPropagation();
+	highlightChanges('#myForm', myFormObj, '#mysave, #myundo');
+});
+$(document).ready(function()
+{
+	myFormObj = findAllFormElements('#myForm');
+	//watching all the form elements
+});
+</script>
+</body>
+</html>

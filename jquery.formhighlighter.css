@@ -1,0 +1,16 @@
+.change_detected{width:69% !important;margin:0;padding:2px !important;background-color: #fbe1a9;border:#e08b03 solid 1px !important;}
+.change_detected_sm{width:63% !important;margin:0;padding:2px !important;background-color: #fbe1a9;border:#e08b03 solid 1px !important;}
+.change_detected_multi{width:69% !important;margin:0;padding:2px !important;background-color: #dbedff;border:#0092C7 solid 1px !important;}
+.change_detected_sm_multi{width:63% !important;margin:0;padding:2px !important;background-color: #dbedff;border:#0092C7 solid 1px !important;}
+.hiddenElem{display:none;}
+
+.formRow{margin-bottom: 4px;}
+.formRow .sm_formCol_left{margin:0;padding:0;width:35%;text-align:left;vertical-align:text-top;float:left;}
+.formRow .sm_formCol_right{margin:0;padding:0;width:65%;text-align:left;vertical-align:text-top;float:left;}
+.formRow .formCol_left{margin:0;padding:0;width:30%;text-align:left;vertical-align:text-top;float:left;position:relative;}
+.formRow .formCol_right{margin:0;padding:0;width:70%;text-align:left;vertical-align:text-top;float:left;position:relative;}
+.formCol_pad10_left{padding:0 0 0 10px !important;}/*expected use: on a div or other block element within a column to create the effect of padding. Adding padding otherwise to the base column creates a width issue.*/
+.formCol_pad20_left{padding:0 0 0 20px !important;}
+.formCol_helptip_icon{background-image:url(/images/iconSprite.png);background-repeat:no-repeat;background-position:-62px -60px;display:inline-block;height:14px;width:11px;position:absolute;top:0;right:0;}
+.formCol_helptip_icon_inline{background-image:url(/images/iconSprite.png);background-repeat:no-repeat;background-position:-62px -60px;display:inline-block;height:14px;width:11px;}
+.formCol_beta{margin:0;padding:0;width:43px;height:16px;background-image:url(/images/beta.png);background-repeat:no-repeat;position:absolute;top:0;right:13px;}
