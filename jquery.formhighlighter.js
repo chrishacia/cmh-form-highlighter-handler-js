@@ -1,6 +1,6 @@
 // Form Highlight & Undo v0.0.1 - a full featured, light-weight, customizable form change detection and handler script.
 // When working with pre-existing data from forms. This script will detect changes in the form
-// Copyright (c) 2012 Christopher Hacia git@chrishacia.com
+// Copyright (c) 2012 Christopher Hacia chris@chrishacia.com
 // Website: http://www.chrishacia.com/scripts/form-highlight
 // Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
 
@@ -23,7 +23,6 @@ function findAllFormElements(formElem)
 	formObj = {};
 	$(formElem).find(':input').each(function(key, val)
 	{
-		// $(document).append(key+'<br>');
 		var endVal = null;
 		if($(val).getType() != 'button')
 		{
@@ -80,21 +79,26 @@ function findAllFormElements(formElem)
 }
 
 
-function highlightChanges(formElem, orgObj, buttons)
+function highlightChanges(formElem, orgObj, buttons, highlight, autosaves)
 {
-	highlightChangesX(formElem, orgObj, buttons, 'formCol_right');
+	if(highlight != true && highlight != false){highlight = true;}
+	if(autosaves != true && autosaves != false){autosaves = false;}
+	highlightChangesX(formElem, orgObj, buttons, 'formCol_right', highlight, autosaves);
 }
-function highlightChangesSmall(formElem, orgObj, buttons)
+function highlightChangesSmall(formElem, orgObj, buttons, highlight, autosaves)
 {
-	highlightChangesX(formElem, orgObj, buttons, 'sm_formCol_right');
+	if(highlight != true && highlight != false){highlight = true;}
+	if(autosaves != true && autosaves != false){autosaves = false;}
+	highlightChangesX(formElem, orgObj, buttons, 'sm_formCol_right', highlight, autosaves);
 }
-function highlightChangesX(formElem, orgObj, buttons, whichDiv)
+function highlightChangesX(formElem, orgObj, buttons, whichDiv, highlight, autosaves)
 {
 	//compare all form elemets on the page in a given form/container
 	//to that of its sister object, then if anything is different highlight the respective rows (buttons)
 	//alert(orgObj);
 	var formObj = {};
 	var changes = 0;
+	if(buttons == null || buttons == undefined || buttons == ''){buttons = null;}
 	$(formElem).find(':input').each(function(key, val)
 	{
 		//moved class selection to loop due to adding support for multi
@@ -133,10 +137,16 @@ function highlightChangesX(formElem, orgObj, buttons, whichDiv)
 					whichClass = whichClass+'_multi';
 					$(val).parents('div.'+whichDiv).find('.hiddenElem').show();
 					$(val).parents('div.'+whichDiv).find('.hiddenElem').find(':input:eq(0)').focus();
-					//.next(':input').focus();
-					//$(':input:eq('+$(':input').index($(val))+1+')').focus();
+					$(val).parents('div.'+whichDiv).addClass(whichClass);
+					//window[$(formElem).data('form_id')] = findAllFormElements(formElem);
 				}
-				$(val).parents('div.'+whichDiv).addClass(whichClass);
+				else
+				{
+					if(highlight == true)
+					{
+						$(val).parents('div.'+whichDiv).addClass(whichClass);
+					}
+				}
 			}
 			else
 			{
@@ -145,12 +155,14 @@ function highlightChangesX(formElem, orgObj, buttons, whichDiv)
 				{
 					whichClass = whichClass+'_multi';
 				}
-
 				if($(val).parents('div.'+whichDiv).hasClass(whichClass))
 				{
 					if(whichClass.match(/_multi/))
 					{
-						$(val).parents('div.'+whichDiv).find('.hiddenElem').hide();
+						if($(val).parents('div.'+whichDiv).find('.hiddenElem').attr('rel') != 'unhide')
+						{
+							$(val).parents('div.'+whichDiv).find('.hiddenElem').hide();
+						}
 					}
 					$(val).parents('div.'+whichDiv).removeClass(whichClass);
 				}
@@ -162,17 +174,29 @@ function highlightChangesX(formElem, orgObj, buttons, whichDiv)
 	$(formElem).parent('div').css({height:elemY+'px'});
 	if(changes > 0)
 	{
-		show_unsaved_warning = true;
-		$(buttons).removeClass('gray').addClass('orange');
+		if(autosaves == false)
+		{
+			show_unsaved_warning = true;
+		}
+		if(buttons != null)
+		{
+			$(buttons).removeClass('gray').addClass('orange');
+		}
 	}
 	else
 	{
 		//alert($('.change_detected').length +'||'+ $('.change_detected_multi').length)
 		if($('.change_detected').length <= 0 || $('.change_detected_multi').length)
 		{
-			show_unsaved_warning = false;
+			if(autosaves == false)
+			{
+				show_unsaved_warning = false;
+			}
 		}
-		$(buttons).removeClass('orange').addClass('gray');
+		if(buttons != null)
+		{
+			$(buttons).removeClass('orange').addClass('gray');
+		}
 	}
 
 	 return formObj;
@@ -208,20 +232,103 @@ function undoChanges(formElem, orgObj, buttons)
 }
 
 
-
-function autoSaver(elem)
+//triggers another function where the function name is a hidden variable contained within
+//the element being used and is treated initially as a string.
+function postManAutoSaver(elem, formElem, formObj)
 {
 	var $elem = elem;
+
 	var mnu = $elem.data('autosave');
-	if(mnu !== '' && mnu !== null && mnu !== undefined)
+	if(mnu != '' && mnu != null && mnu != undefined)
 	{
-		typeof window[mnu] === "function" && window[mnu](elem);
+		typeof window[mnu] === "function" && window[mnu](elem, formElem, formObj);
 	}
 }
 
-//additional functionality to the jquery lib to find the type of inputs we are working over for object creation
-$.fn.getType = function(){ return this[0].tagName == "INPUT" ? $(this[0]).attr("type").toLowerCase() : this[0].tagName.toLowerCase(); }
-
+//reusable $.post function to save write time, and overall code base size.
+function postMan(elem, uri, params, formElem, formObj)
+{
+	if(elem == '' || elem == null || elem == undefined){alert('Postman: Element Undefined');return false;}
+	if(uri == '' || uri == null || uri == undefined){alert('Postman: URL not defined');return false;}
+	if(params == '' || params == null || params == undefined){alert('Postman: Parameters not found');return false;}
+	$elem = elem;
+	//$.post(uri,params,function(d)
+	//{
+		var d = {}
+		d.status = "SUCCESS"
+		if(d.status == "SUCCESS")
+		{
+			//$elem.parent('div').append('<p class="change_success">Saved.</p>');
+			$elem.after('&nbsp;&nbsp;&nbsp;<span class="change_success">&nbsp;Saved.&nbsp;</span>');
+			console.log(params);
+			//window[$(formElem).data('form_id')] = findAllFormElements(formElem);
+			setTimeout(function()
+			{
+				$elem.parents('div').find('.change_success').animate({"opacity":"0"}, 2200, function(){$elem.parents('div').find('.change_success').remove();});
+			}, 1000);
+			if($elem.data('autosave_end') && nullCheck($elem.data('autosave_end')) == false)
+			{
+				typeof window[$elem.data('autosave_end')] === "function" && window[$elem.data('autosave_end')]();
+			}
+		}
+		else
+		{
+			msgDisplayBox(data.code, data.message, data.actions);
+		}
+	//}, 'json');
+}
+//elem & formObj gets passed from the autosave function when it calls this one out.
+function postHandler(elem, formElem, formObj, bigsmall)
+{
+	var $elem = elem;
+	var uri = $elem.data('autosave_uri');
+	var params = {};
+	if(nullCheck(uri) == true){return false;}
+	if($elem.getType() == 'radio' || $elem.getType() == 'checkbox')
+	{
+		if($elem.is(':checked'))
+		{
+			endVal = 'TRUE';
+		}
+		else
+		{
+			endVal = 'FALSE';
+		}
+	}
+	else if($elem.getType() == 'select')
+	{
+		if(nullCheck($elem.val()) == true)
+		{
+			endVal = 'NULL';
+		}
+		else
+		{
+			if(nullCheck($elem.find('option:selected').val()) == true)
+			{
+				endVal = 'NULL';
+			}
+			else
+			{
+				endVal = $elem.find('option:selected').val();
+			}
+		}
+	}
+	else
+	{
+		if(nullCheck($elem.val()) == true)
+		{
+			endVal = 'NULL';
+		}
+		else
+		{
+			endVal = $elem.val();
+		}
+	}
+	params.property_name = $elem.attr('name');
+	params.property_value = endVal;
+	params.system_id = system_id;
+	postMan(elem, uri, params, formElem, formObj);
+}
 
 $(document).ready(function()
 {
@@ -235,3 +342,5 @@ $(document).ready(function()
 		}
 	});
 });
+//getType handler jquery addon (loaded in global currently)
+//$.fn.getType = function(){ return this[0].tagName == "INPUT" ? $(this[0]).attr("type").toLowerCase() : this[0].tagName.toLowerCase(); }
